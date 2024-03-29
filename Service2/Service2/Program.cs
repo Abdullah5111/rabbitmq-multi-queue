@@ -3,13 +3,11 @@ using Service2.Consumer;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configuration of MassTransit with RabbitMQ
 builder.Services.AddMassTransit(config => {
     config.UsingRabbitMq((ctx, cfg) => {
         cfg.Host(new Uri("rabbitmq://localhost"), h => {
@@ -17,6 +15,8 @@ builder.Services.AddMassTransit(config => {
             h.Password("guest");
         });
 
+        // Configuration of the consumer which will be executed automatically when message is received in queue
+        // The queue name is identified as per MassTransit queue naming convention
         cfg.ReceiveEndpoint("SharedContent.Message:Tokenn1", ep => {
             ep.Consumer<Service1Consumer>();
         });
